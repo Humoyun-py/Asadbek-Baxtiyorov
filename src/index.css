@@ -1,0 +1,60 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Montserrat", ui-sans-serif, system-ui, sans-serif;
+  --color-bg: #061552;
+  --color-bg2: #0a2080;
+  --color-card: #0d2692;
+  --color-brand: #2f5bff;
+  --color-cyan: #62d8ff;
+  --color-muted: #b9c8f5;
+  --color-line: rgba(255, 255, 255, 0.16);
+}
+
+html { font-size: 112.5%; scroll-behavior: smooth; scroll-padding-top: 80px; }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+
+body {
+  background: #061552 linear-gradient(180deg, #0b2cb0 0%, #071a66 30%, #051052 65%, #040c3a 100%);
+  background-attachment: fixed;
+  color: #fff;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+.grad-text {
+  background: linear-gradient(90deg, #ffffff, #7fe3ff);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.glass {
+  background: rgba(17, 29, 69, 0.55);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+.grid-bg {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse at 50% 30%, #000 30%, transparent 75%);
+}
+:focus-visible { outline: 2px solid #22d3ee; outline-offset: 3px; border-radius: 6px; }
+::selection { background: #365cff; color: #fff; }
+
+/* Bo'rttirilgan kalit so'z — oq "pill" */
+.pill {
+  display: inline-block; background: #fff; color: #1c3fd6; border-radius: 0.9rem;
+  padding: 0.02em 0.32em 0.08em; margin: 0.04em 0; box-shadow: 0 10px 30px -10px rgba(0, 20, 120, 0.6);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.pill-cyan {
+  display: inline-block; background: linear-gradient(90deg, #a9f0ff, #5cc8ff); color: #0a2a9a; border-radius: 0.9rem;
+  padding: 0.02em 0.32em 0.08em; margin: 0.04em 0; box-shadow: 0 10px 30px -10px rgba(0, 120, 255, 0.6);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+}
+.glow-arc { filter: drop-shadow(0 0 14px rgba(98, 216, 255, 0.55)); }
