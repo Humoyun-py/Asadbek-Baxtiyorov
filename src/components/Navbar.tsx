@@ -32,7 +32,7 @@ export default function Navbar() {
       className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${scrolled || open ? 'border-b border-line bg-bg/75 backdrop-blur-xl' : 'border-b border-transparent'}`}
     >
       <nav aria-label="Asosiy navigatsiya" className="mx-auto flex h-[72px] max-w-7xl items-center justify-between px-5 sm:px-8">
-        <a href="#home" className="text-base font-extrabold leading-[1.05] tracking-wide" aria-label="Asadbek Baxtiyorov — bosh sahifa">
+        <a href="#home" className="text-sm font-extrabold leading-[1.05] tracking-wide sm:text-base" aria-label="Asadbek Baxtiyorov — bosh sahifa">
           ASADBEK<span className="text-cyan">.</span><br /><span className="text-muted">BAXTIYOROV</span>
         </a>
 
@@ -51,7 +51,7 @@ export default function Navbar() {
         </ul>
 
         <div className="flex items-center gap-3">
-          <Button href="#contact" className="hidden !min-h-10 !px-5 !text-sm sm:inline-flex">Bog'lanish</Button>
+          <span className="hidden sm:block"><Button href="#contact" className="!min-h-10 !px-5 !text-sm">Bog'lanish</Button></span>
           <button className="flex h-11 w-11 items-center justify-center rounded-xl border border-line bg-white/5 lg:hidden"
             onClick={() => setOpen((o) => !o)} aria-expanded={open} aria-controls="mobile-menu" aria-label={open ? 'Menyuni yopish' : 'Menyuni ochish'}>
             {open ? <X size={22} /> : <Menu size={22} />}

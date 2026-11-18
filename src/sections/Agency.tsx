@@ -27,7 +27,7 @@ export default function Agency() {
                   {agencyServices.map((s) => <li key={s} className="flex items-center gap-2.5 text-base"><Check size={16} className="text-cyan" aria-hidden /> {s}.</li>)}
                 </ul>
 
-                <div className="mt-9"><Button href={AGENCY_TELEGRAM_URL} external><Send size={18} aria-hidden /> Agentlik bilan bog'lanish</Button></div>
+                <div className="mt-9"><Button href={AGENCY_TELEGRAM_URL} external className="w-full sm:w-auto"><Send size={18} aria-hidden /> Agentlik bilan bog'lanish</Button></div>
               </div>
               <div className="mx-auto w-full max-w-[320px]">
                 <img src={shot} alt="Global Targeting Kanali — Telegram" loading="lazy" decoding="async" className="w-full rounded-3xl border border-line shadow-2xl" />

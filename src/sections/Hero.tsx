@@ -38,7 +38,7 @@ export default function Hero() {
 
       <div className="relative mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-12 sm:px-8 lg:min-h-[calc(100vh-72px)] lg:grid-cols-[1.1fr_0.9fr] lg:gap-8 lg:pt-8">
         <div>
-          <motion.p {...item(0)} className="inline-flex items-center gap-2 rounded-full border border-line bg-white/5 px-4 py-2 text-xs font-bold uppercase tracking-[0.18em] text-muted sm:text-xs">
+          <motion.p {...item(0)} className="inline-flex items-center gap-2 rounded-full border border-line bg-white/5 px-3.5 py-2 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-muted sm:px-4 sm:text-xs sm:tracking-[0.18em]">
             <span className="h-1.5 w-1.5 rounded-full bg-cyan" aria-hidden /> PERSONAL PORTFOLIO • 2026
           </motion.p>
           <motion.h1 id="hero-title" {...item(1)} className="mt-6 text-[2.1rem] font-black leading-[1.15] tracking-tight sm:text-5xl lg:text-[3.4rem]">
@@ -51,11 +51,11 @@ export default function Hero() {
             <Button href="#projects">Loyihalarni ko'rish <ArrowRight size={18} aria-hidden /></Button>
             <Button href="#contact" variant="ghost">Bog'lanish</Button>
           </motion.div>
-          <motion.dl {...item(4)} className="mt-10 grid max-w-xl grid-cols-3 gap-4 border-t border-line pt-7">
+          <motion.dl {...item(4)} className="mt-10 grid max-w-xl grid-cols-3 gap-2 sm:gap-4 border-t border-line pt-7">
             {heroStats.map((s) => (
               <div key={s.label}>
                 <dt className="sr-only">{s.label}</dt>
-                <dd className="whitespace-nowrap text-lg font-extrabold tracking-tight sm:text-2xl">{s.value}</dd>
+                <dd className="whitespace-nowrap text-base font-extrabold tracking-tight sm:text-2xl">{s.value}</dd>
                 <dd className="mt-1 text-xs text-muted sm:text-sm">{s.label}</dd>
               </div>
             ))}
@@ -65,7 +65,7 @@ export default function Hero() {
         {/* Profil kompozitsiyasi */}
         <motion.div initial={reduce ? false : { opacity: 0, scale: 0.94 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.9, delay: 0.3, ease }}
           className="relative mx-auto w-full max-w-[460px] lg:max-w-none">
-          <div className="relative mx-auto aspect-[4/5] w-[82%] overflow-hidden rounded-[2rem] border border-line bg-gradient-to-br from-[#1a2a78] via-card to-bg2 shadow-[0_40px_80px_-30px_rgba(54,92,255,0.5)]">
+          <div className="relative mx-auto aspect-[4/5] w-[92%] sm:w-[82%] overflow-hidden rounded-[2rem] border border-line bg-gradient-to-br from-[#1a2a78] via-card to-bg2 shadow-[0_40px_80px_-30px_rgba(54,92,255,0.5)]">
             <div className="absolute -right-16 -top-16 h-64 w-64 rounded-full bg-brand/50 blur-3xl" aria-hidden />
             <div className="absolute -bottom-20 -left-10 h-60 w-60 rounded-full bg-cyan/25 blur-3xl" aria-hidden />
             <svg className="absolute inset-0 h-full w-full opacity-40" viewBox="0 0 400 500" fill="none" aria-hidden>
@@ -88,13 +88,13 @@ export default function Hero() {
             </div>
           </div>
 
-          <Float className="left-0 top-[10%] sm:-left-2" delay={0}>
+          <Float className="left-0 top-[6%] scale-90 sm:-left-2 sm:top-[10%] sm:scale-100" delay={0}>
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand/20 text-cyan"><Wallet size={20} aria-hidden /></span>
               <div><p className="text-lg font-extrabold leading-none">$180 000+</p><p className="mt-1 text-xs text-muted">reklama byudjeti</p></div>
             </div>
           </Float>
-          <Float className="-right-1 top-[38%] sm:-right-4" delay={0.4}>
+          <Float className="-right-1 top-[38%] hidden sm:-right-4 sm:block" delay={0.4}>
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan/15 text-cyan"><Users size={20} aria-hidden /></span>
               <div><p className="text-lg font-extrabold leading-none">30 852</p><p className="mt-1 text-xs text-muted">lid / ariza</p></div>
