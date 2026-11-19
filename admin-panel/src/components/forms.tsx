@@ -3,6 +3,7 @@ import { ImagePlus, Plus, Trash2 } from 'lucide-react'
 import { useEffect, useMemo, useState } from 'react'
 import { Controller, useForm } from 'react-hook-form'
 import { z } from 'zod'
+import { t } from '../i18n'
 import { api, unwrap } from '../services/api'
 import { Button } from './ui'
 
@@ -35,7 +36,7 @@ function fieldSchema(f: FieldDef, isEdit: boolean): z.ZodTypeAny {
     default: break
   }
   let s = z.string()
-  if (required) s = s.trim().min(1, `${f.label} is required`)
+  if (required) s = s.trim().min(1, t('{x} is required', { x: t(f.label) }))
   return s.refine((v) => {
     if (!v) return true
     if (f.type === 'email') return EMAIL.test(v)
@@ -45,9 +46,9 @@ function fieldSchema(f: FieldDef, isEdit: boolean): z.ZodTypeAny {
     if (f.type === 'json') { try { return Array.isArray(JSON.parse(v)) } catch { return false } }
     return true
   }, { message: {
-    email: 'Enter a valid email', url: 'Enter a full URL starting with http(s)://', number: f.integer ? 'Enter a whole number' : 'Enter a number',
-    color: 'Use a hex colour like #2f5bff', json: 'Must be a valid JSON list',
-  }[f.type as string] ?? 'Invalid value' })
+    email: t('Enter a valid email'), url: t('Enter a full URL starting with http(s)://'), number: f.integer ? t('Enter a whole number') : t('Enter a number'),
+    color: t('Use a hex colour like #2f5bff'), json: t('Must be a valid JSON list'),
+  }[f.type as string] ?? t('Invalid value') })
 }
 
 export function buildSchema(fields: FieldDef[], isEdit: boolean) {
@@ -102,16 +103,16 @@ export function ImageInput({ value, onChange, label }: { value: unknown; onChang
   return (
     <div className="flex items-center gap-4">
       <div className="flex h-24 w-32 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
-        {preview ? <img src={preview} alt={`${label} preview`} className="h-full w-full object-cover" /> : <ImagePlus className="text-slate-400" aria-hidden />}
+        {preview ? <img src={preview} alt={t('{x} preview', { x: label })} className="h-full w-full object-cover" /> : <ImagePlus className="text-slate-400" aria-hidden />}
       </div>
       <div className="space-y-2">
         <label className="inline-block cursor-pointer rounded-lg bg-white px-3 py-1.5 text-sm font-semibold ring-1 ring-slate-300 hover:bg-slate-50">
-          {preview ? 'Replace image' : 'Choose image'}
+          {preview ? t('Replace image') : t('Choose image')}
           <input type="file" accept="image/png,image/jpeg,image/webp" className="sr-only" aria-label={label}
             onChange={(e) => { const f = e.target.files?.[0]; if (f) onChange(f); e.target.value = '' }} />
         </label>
-        {preview && <button type="button" onClick={() => onChange('')} className="ml-2 text-sm font-medium text-red-600 hover:underline">Remove</button>}
-        <p className="text-xs text-slate-500">JPG, PNG or WEBP, up to 5 MB.</p>
+        {preview && <button type="button" onClick={() => onChange('')} className="ml-2 text-sm font-medium text-red-600 hover:underline">{t('Remove')}</button>}
+        <p className="text-xs text-slate-500">{t('JPG, PNG or WEBP, up to 5 MB.')}</p>
       </div>
     </div>
   )
@@ -123,10 +124,10 @@ function StringsInput({ value, onChange, label }: { value: string[]; onChange: (
       {value.map((s, i) => (
         <div key={i} className="flex gap-2">
           <input className="input" aria-label={`${label} ${i + 1}`} value={s} onChange={(e) => onChange(value.map((x, j) => (j === i ? e.target.value : x)))} />
-          <button type="button" aria-label="Remove" onClick={() => onChange(value.filter((_, j) => j !== i))} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
+          <button type="button" aria-label={t('Remove')} onClick={() => onChange(value.filter((_, j) => j !== i))} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>
         </div>
       ))}
-      <button type="button" onClick={() => onChange([...value, ''])} className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"><Plus size={15} /> Add item</button>
+      <button type="button" onClick={() => onChange([...value, ''])} className="inline-flex items-center gap-1 text-sm font-semibold text-brand hover:underline"><Plus size={15} /> {t('Add item')}</button>
     </div>
   )
 }
@@ -147,13 +148,13 @@ function SelectField({ f, id, invalid, reg }: { f: FieldDef; id: string; invalid
   return (
     <select id={id} className="input" aria-invalid={invalid} {...reg}>
       {!f.required && <option value="">—</option>}
-      {f.required && <option value="" disabled>Select…</option>}
-      {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+      {f.required && <option value="" disabled>{t('Select…')}</option>}
+      {opts.map((o) => <option key={o.value} value={o.value}>{t(o.label)}</option>)}
     </select>
   )
 }
 
-export function ResourceForm({ fields, item, submitting, serverErrors, submitLabel = 'Save', multipart = true, onSubmit, onCancel, children }: {
+export function ResourceForm({ fields, item, submitting, serverErrors, submitLabel = t('Save'), multipart = true, onSubmit, onCancel, children }: {
   fields: FieldDef[]; item: Record<string, unknown> | null; submitting?: boolean; serverErrors?: Record<string, string>
   submitLabel?: string; multipart?: boolean; onSubmit: (body: FormData | Record<string, unknown>) => void; onCancel?: () => void; children?: React.ReactNode
 }) {
@@ -175,20 +176,20 @@ export function ResourceForm({ fields, item, submitting, serverErrors, submitLab
           return (
             <div key={f.name} className={wide ? 'sm:col-span-2' : ''}>
               {f.type === 'checkbox' ? (
-                <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" className="h-4 w-4 rounded" {...register(f.name)} /> {f.label}</label>
+                <label className="flex items-center gap-2 text-sm font-medium"><input type="checkbox" className="h-4 w-4 rounded" {...register(f.name)} /> {t(f.label)}</label>
               ) : (
                 <label htmlFor={id} className="mb-1 block text-sm font-semibold text-slate-700">
-                  {f.label}{(f.required || (f.requiredOnCreate && !isEdit)) && <span className="text-red-600"> *</span>}
+                  {t(f.label)}{(f.required || (f.requiredOnCreate && !isEdit)) && <span className="text-red-600"> *</span>}
                 </label>
               )}
               {f.type === 'textarea' && <textarea id={id} rows={4} className="input" aria-invalid={!!err} {...register(f.name)} />}
               {f.type === 'json' && <textarea id={id} rows={5} className="input font-mono text-xs" aria-invalid={!!err} {...register(f.name)} />}
               {f.type === 'select' && <SelectField f={f} id={id} invalid={!!err} reg={register(f.name)} />}
-              {f.type === 'image' && <Controller control={control} name={f.name} render={({ field }) => <ImageInput label={f.label} value={field.value} onChange={field.onChange} />} />}
-              {f.type === 'strings' && <Controller control={control} name={f.name} render={({ field }) => <StringsInput label={f.label} value={(field.value as string[]) ?? []} onChange={field.onChange} />} />}
+              {f.type === 'image' && <Controller control={control} name={f.name} render={({ field }) => <ImageInput label={t(f.label)} value={field.value} onChange={field.onChange} />} />}
+              {f.type === 'strings' && <Controller control={control} name={f.name} render={({ field }) => <StringsInput label={t(f.label)} value={(field.value as string[]) ?? []} onChange={field.onChange} />} />}
               {f.type === 'color' && (
                 <div className="flex gap-2">
-                  <Controller control={control} name={f.name} render={({ field }) => <input type="color" aria-label={`${f.label} picker`} className="h-10 w-12 rounded border border-slate-300" value={/^#[0-9a-f]{6}$/i.test(String(field.value)) ? String(field.value) : '#000000'} onChange={field.onChange} />} />
+                  <Controller control={control} name={f.name} render={({ field }) => <input type="color" aria-label={t(f.label)} className="h-10 w-12 rounded border border-slate-300" value={/^#[0-9a-f]{6}$/i.test(String(field.value)) ? String(field.value) : '#000000'} onChange={field.onChange} />} />
                   <input id={id} className="input" aria-invalid={!!err} {...register(f.name)} />
                 </div>
               )}
@@ -197,7 +198,7 @@ export function ResourceForm({ fields, item, submitting, serverErrors, submitLab
                   className="input" aria-invalid={!!err} {...register(f.name)} />
               )}
               {f.type === 'number' && <input id={id} inputMode="decimal" className="input" aria-invalid={!!err} {...register(f.name)} />}
-              {f.help && <p className="mt-1 text-xs text-slate-500">{f.help}</p>}
+              {f.help && <p className="mt-1 text-xs text-slate-500">{t(f.help)}</p>}
               {err && <p role="alert" className="mt-1 text-xs font-medium text-red-600">{err}</p>}
             </div>
           )
@@ -205,7 +206,7 @@ export function ResourceForm({ fields, item, submitting, serverErrors, submitLab
       </div>
       {children}
       <div className="flex justify-end gap-2 border-t border-slate-100 pt-4">
-        {onCancel && <Button type="button" variant="secondary" onClick={onCancel}>Cancel</Button>}
+        {onCancel && <Button type="button" variant="secondary" onClick={onCancel}>{t('Cancel')}</Button>}
         <Button type="submit" loading={submitting}>{submitLabel}</Button>
       </div>
     </form>

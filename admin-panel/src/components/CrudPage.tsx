@@ -1,6 +1,7 @@
 import { GripVertical, Pencil, Plus, Search, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useRef, useState, type ReactNode } from 'react'
 import { useAuth } from '../contexts/AuthContext'
+import { t } from '../i18n'
 import { useToast } from '../hooks/useToast'
 import { api, unwrap } from '../services/api'
 import type { Paginated, Role } from '../types'
@@ -39,9 +40,9 @@ function FilterSelect({ f, value, onChange }: { f: NonNullable<CrudConfig['filte
       setOpts(unwrap<Record<string, unknown>>(r.data).map((o) => ({ value: String(o.id), label: String(o[f.optionsFrom!.label]) }))))
   }, [f.optionsFrom])
   return (
-    <select aria-label={f.label} className="input !w-auto" value={value} onChange={(e) => onChange(e.target.value)}>
-      <option value="">{f.label}: all</option>
-      {opts.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+    <select aria-label={t(f.label)} className="input !w-auto" value={value} onChange={(e) => onChange(e.target.value)}>
+      <option value="">{t('{x}: all', { x: t(f.label) })}</option>
+      {opts.map((o) => <option key={o.value} value={o.value}>{t(o.label)}</option>)}
     </select>
   )
 }
@@ -66,6 +67,8 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
   const [busy, setBusy] = useState(false)
   const dragId = useRef<number | null>(null)
 
+  const one = t(cfg.singular)
+  const cap = (s: string) => s.charAt(0).toUpperCase() + s.slice(1)
   const canWrite = can(cfg.writeRole ?? 'ADMIN')
   const canDelete = can(cfg.deleteRole ?? 'ADMIN')
   const filtering = !!debounced || Object.values(filterVals).some(Boolean)
@@ -94,7 +97,7 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
     try {
       if (editing === 'new') await api.post(`/${cfg.resource}/`, body)
       else if (editing) await api.patch(`/${cfg.resource}/${editing.id}/`, body)
-      show(editing === 'new' ? `${cfg.singular} created` : `${cfg.singular} saved`)
+      show(cap(t(editing === 'new' ? '{x} created' : '{x} saved', { x: one })))
       close(); load()
     } catch (e) { const p = parseApiError(e); setFormErrors(p.fields); setFormMessage(p.message) } finally { setSaving(false) }
   }
@@ -102,7 +105,7 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
   const remove = async () => {
     if (!deleting) return
     setBusy(true)
-    try { await api.delete(`/${cfg.resource}/${deleting.id}/`); show(`${cfg.singular} deleted`); setDeleting(null); load() }
+    try { await api.delete(`/${cfg.resource}/${deleting.id}/`); show(cap(t('{x} deleted', { x: one }))); setDeleting(null); load() }
     catch (e) { show(parseApiError(e).message, 'error'); setDeleting(null) } finally { setBusy(false) }
   }
 
@@ -121,7 +124,7 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
     const j = next.findIndex((r) => r.id === targetId)
     next.splice(j, 0, next.splice(i, 1)[0])
     setRows(next)
-    try { await api.post(`/${cfg.resource}/reorder/`, { ids: next.map((r) => r.id) }); show('Order saved') }
+    try { await api.post(`/${cfg.resource}/reorder/`, { ids: next.map((r) => r.id) }); show(t('Order saved')) }
     catch (e) { show(parseApiError(e).message, 'error'); load() }
   }
 
@@ -130,14 +133,14 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
   return (
     <div>
       <PageHeader title={cfg.title} subtitle={cfg.subtitle}
-        actions={canWrite && <Button onClick={() => setEditing('new')}><Plus size={16} aria-hidden /> New {cfg.singular}</Button>} />
+        actions={canWrite && <Button onClick={() => setEditing('new')}><Plus size={16} aria-hidden /> {t('New {x}', { x: one })}</Button>} />
       <Card className="!p-0">
         {(cfg.searchable || cfg.filters) && (
           <div className="flex flex-wrap items-center gap-3 border-b border-slate-100 p-4">
             {cfg.searchable && (
               <div className="relative min-w-[220px] flex-1">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden />
-                <input className="input !pl-9" placeholder={`Search ${cfg.title.toLowerCase()}…`} aria-label="Search" value={search} onChange={(e) => setSearch(e.target.value)} />
+                <input className="input !pl-9" placeholder={t('Search {x}…', { x: t(cfg.title).toLowerCase() })} aria-label={t('Search')} value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
             )}
             {cfg.filters?.map((f) => <FilterSelect key={f.name} f={f} value={filterVals[f.name] ?? ''} onChange={(v) => { setFilterVals({ ...filterVals, [f.name]: v }); setPage(1) }} />)}
@@ -145,31 +148,31 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
         )}
         {error ? <div className="p-4"><ErrorBox message={error} onRetry={load} /></div>
           : loading && !rows.length ? <Spinner />
-          : !rows.length ? <p className="py-16 text-center text-sm text-slate-500">{filtering ? 'Nothing matches your search.' : `No ${cfg.title.toLowerCase()} yet.`}</p>
+          : !rows.length ? <p className="py-16 text-center text-sm text-slate-500">{filtering ? t('Nothing matches your search.') : t('No {x} yet.', { x: t(cfg.title).toLowerCase() })}</p>
           : (
             <div className="overflow-x-auto">
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-50 text-xs uppercase tracking-wide text-slate-500">
                   <tr>
-                    {dragEnabled && <th className="w-8 px-2 py-3"><span className="sr-only">Reorder</span></th>}
-                    {cfg.columns.map((c) => <th key={c.key} className="px-4 py-3 font-semibold">{c.label}</th>)}
-                    <th className="px-4 py-3 text-right font-semibold">Actions</th>
+                    {dragEnabled && <th className="w-8 px-2 py-3"><span className="sr-only">{t('Reorder')}</span></th>}
+                    {cfg.columns.map((c) => <th key={c.key} className="px-4 py-3 font-semibold">{t(c.label)}</th>)}
+                    <th className="px-4 py-3 text-right font-semibold">{t('Actions')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {rows.map((row) => (
                     <tr key={row.id} draggable={dragEnabled} onDragStart={() => { dragId.current = row.id }}
                       onDragOver={(e) => dragEnabled && e.preventDefault()} onDrop={() => dragEnabled && reorder(row.id)} className="hover:bg-slate-50/70">
-                      {dragEnabled && <td className="px-2 text-slate-400"><GripVertical size={16} className="cursor-grab" aria-label="Drag to reorder" /></td>}
+                      {dragEnabled && <td className="px-2 text-slate-400"><GripVertical size={16} className="cursor-grab" aria-label={t('Drag to reorder')} /></td>}
                       {cfg.columns.map((c) => <td key={c.key} className={`px-4 py-3 ${c.className ?? ''}`}>{c.render ? c.render(row) : String(row[c.key] ?? '—')}</td>)}
                       <td className="whitespace-nowrap px-4 py-3 text-right">
                         {cfg.togglePublish && canWrite && (
                           <button onClick={() => toggle(row)} className="mr-2 text-xs font-semibold text-brand hover:underline">
-                            {row[cfg.togglePublish] ? 'Unpublish' : 'Publish'}
+                            {row[cfg.togglePublish] ? t('Unpublish') : t('Publish')}
                           </button>
                         )}
-                        {canWrite && <button aria-label={`Edit ${cfg.singular}`} onClick={() => setEditing(row)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><Pencil size={16} /></button>}
-                        {canDelete && <button aria-label={`Delete ${cfg.singular}`} onClick={() => setDeleting(row)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>}
+                        {canWrite && <button aria-label={t('Edit {x}', { x: one })} onClick={() => setEditing(row)} className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"><Pencil size={16} /></button>}
+                        {canDelete && <button aria-label={t('Delete {x}', { x: one })} onClick={() => setDeleting(row)} className="rounded-lg p-2 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={16} /></button>}
                       </td>
                     </tr>
                   ))}
@@ -179,9 +182,9 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
           )}
         {!cfg.reorderable && <div className="px-4 pb-4"><Pager page={page} count={count} pageSize={pageSize} onPage={setPage} /></div>}
       </Card>
-      {dragEnabled && rows.length > 1 && <p className="mt-2 text-xs text-slate-500">Drag the grip handle to change the display order.</p>}
+      {dragEnabled && rows.length > 1 && <p className="mt-2 text-xs text-slate-500">{t('Drag the grip handle to change the display order.')}</p>}
 
-      <Modal open={!!editing} wide={cfg.wide ?? true} title={editing === 'new' ? `New ${cfg.singular}` : `Edit ${cfg.singular}`} onClose={close}>
+      <Modal open={!!editing} wide={cfg.wide ?? true} title={cap(t(editing === 'new' ? 'New {x}' : 'Edit {x}', { x: one }))} onClose={close}>
         {formMessage && <div className="mb-4"><ErrorBox message={formMessage} /></div>}
         {editing && (
           <ResourceForm fields={cfg.fields} item={editing === 'new' ? null : editing} submitting={saving} serverErrors={formErrors}
@@ -190,10 +193,10 @@ export default function CrudPage({ cfg }: { cfg: CrudConfig }) {
           </ResourceForm>
         )}
       </Modal>
-      <ConfirmDialog open={!!deleting} title={`Delete ${cfg.singular}?`} text="This cannot be undone." busy={busy} onConfirm={remove} onCancel={() => setDeleting(null)} />
+      <ConfirmDialog open={!!deleting} title={cap(t('Delete {x}?', { x: one }))} text="This cannot be undone." busy={busy} onConfirm={remove} onCancel={() => setDeleting(null)} />
       <Toast message={toast?.message ?? null} tone={toast?.tone} />
     </div>
   )
 }
 
-export const yesNo = (v: unknown) => <Badge tone={v ? 'green' : 'slate'}>{v ? 'Yes' : 'No'}</Badge>
+export const yesNo = (v: unknown) => <Badge tone={v ? 'green' : 'slate'}>{v ? t('Yes') : t('No')}</Badge>

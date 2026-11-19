@@ -1,5 +1,6 @@
 import CrudPage, { yesNo, type CrudConfig } from '../components/CrudPage'
 import { Badge } from '../components/ui'
+import { t } from '../i18n'
 import { fmtDate } from '../utils/format'
 
 const cfg: CrudConfig = {
@@ -10,7 +11,7 @@ const cfg: CrudConfig = {
   columns: [
     { key: 'username', label: 'Username', render: (r) => <span className="font-semibold">{String(r.username)}</span> },
     { key: 'email', label: 'Email' },
-    { key: 'role', label: 'Role', render: (r) => <Badge tone={r.role === 'SUPERADMIN' ? 'red' : r.role === 'ADMIN' ? 'blue' : 'slate'}>{String(r.role)}</Badge> },
+    { key: 'role', label: 'Role', render: (r) => <Badge tone={r.role === 'SUPERADMIN' ? 'red' : r.role === 'ADMIN' ? 'blue' : 'slate'}>{t(({ SUPERADMIN: 'Super admin', ADMIN: 'Admin', EDITOR: 'Editor' } as Record<string, string>)[String(r.role)] ?? String(r.role))}</Badge> },
     { key: 'is_active', label: 'Active', render: (r) => yesNo(r.is_active) },
     { key: 'last_login', label: 'Last login', render: (r) => fmtDate(r.last_login as string | null) },
   ],

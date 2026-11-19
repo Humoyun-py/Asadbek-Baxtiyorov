@@ -1,5 +1,6 @@
 import { Plus, Trash2 } from 'lucide-react'
 import { useCallback, useEffect, useState } from 'react'
+import { t } from '../i18n'
 import { api, unwrap } from '../services/api'
 import type { GalleryImage, Project } from '../types'
 import { parseApiError } from '../utils/format'
@@ -32,30 +33,30 @@ export function CampaignStats({ campaignId }: { campaignId: number }) {
   const patch = (id: number, data: Partial<CStat>) => run(() => api.patch(`/campaign-statistics/${id}/`, data))
 
   return (
-    <section className="rounded-xl border border-slate-200 p-4" aria-label="Campaign statistics">
-      <h3 className="mb-3 text-sm font-bold">Campaign statistics</h3>
+    <section className="rounded-xl border border-slate-200 p-4" aria-label={t('Campaign statistics')}>
+      <h3 className="mb-3 text-sm font-bold">{t('Campaign statistics')}</h3>
       {error && <div className="mb-3"><ErrorBox message={error} /></div>}
       <ul className="space-y-2">
         {rows.map((r) => (
           <li key={r.id} className="grid grid-cols-[1fr_90px_60px_60px_auto_auto] items-center gap-2 text-sm">
-            <input className="input" aria-label="Label" defaultValue={r.title} onBlur={(e) => e.target.value !== r.title && patch(r.id, { title: e.target.value })} />
-            <input className="input" aria-label="Value" defaultValue={Number(r.value)} onBlur={(e) => e.target.value !== String(Number(r.value)) && patch(r.id, { value: e.target.value })} />
-            <input className="input" aria-label="Prefix" defaultValue={r.prefix} onBlur={(e) => e.target.value !== r.prefix && patch(r.id, { prefix: e.target.value })} />
-            <input className="input" aria-label="Suffix" defaultValue={r.suffix} onBlur={(e) => e.target.value !== r.suffix && patch(r.id, { suffix: e.target.value })} />
-            <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={r.is_active} onChange={(e) => patch(r.id, { is_active: e.target.checked })} /> Active</label>
-            <button type="button" aria-label="Delete statistic" onClick={() => run(() => api.delete(`/campaign-statistics/${r.id}/`))} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
+            <input className="input" aria-label={t('Label')} defaultValue={r.title} onBlur={(e) => e.target.value !== r.title && patch(r.id, { title: e.target.value })} />
+            <input className="input" aria-label={t('Value')} defaultValue={Number(r.value)} onBlur={(e) => e.target.value !== String(Number(r.value)) && patch(r.id, { value: e.target.value })} />
+            <input className="input" aria-label={t('Prefix')} defaultValue={r.prefix} onBlur={(e) => e.target.value !== r.prefix && patch(r.id, { prefix: e.target.value })} />
+            <input className="input" aria-label={t('Suffix')} defaultValue={r.suffix} onBlur={(e) => e.target.value !== r.suffix && patch(r.id, { suffix: e.target.value })} />
+            <label className="flex items-center gap-1 text-xs"><input type="checkbox" checked={r.is_active} onChange={(e) => patch(r.id, { is_active: e.target.checked })} /> {t('Active')}</label>
+            <button type="button" aria-label={t('Delete statistic')} onClick={() => run(() => api.delete(`/campaign-statistics/${r.id}/`))} className="rounded p-1.5 text-slate-500 hover:bg-red-50 hover:text-red-600"><Trash2 size={15} /></button>
           </li>
         ))}
-        {!rows.length && <li className="text-sm text-slate-500">No statistics for this campaign yet.</li>}
+        {!rows.length && <li className="text-sm text-slate-500">{t('No statistics for this campaign yet.')}</li>}
       </ul>
       <div className="mt-3 grid grid-cols-[1fr_90px_60px_60px_auto] items-end gap-2">
-        <input className="input" aria-label="New label" placeholder="Label" value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
-        <input className="input" aria-label="New value" placeholder="Value" value={draft.value} onChange={(e) => setDraft({ ...draft, value: e.target.value })} />
-        <input className="input" aria-label="New prefix" placeholder="$" value={draft.prefix} onChange={(e) => setDraft({ ...draft, prefix: e.target.value })} />
-        <input className="input" aria-label="New suffix" placeholder="+" value={draft.suffix} onChange={(e) => setDraft({ ...draft, suffix: e.target.value })} />
+        <input className="input" aria-label={t('New label')} placeholder={t('Label')} value={draft.title} onChange={(e) => setDraft({ ...draft, title: e.target.value })} />
+        <input className="input" aria-label={t('New value')} placeholder={t('Value')} value={draft.value} onChange={(e) => setDraft({ ...draft, value: e.target.value })} />
+        <input className="input" aria-label={t('New prefix')} placeholder="$" value={draft.prefix} onChange={(e) => setDraft({ ...draft, prefix: e.target.value })} />
+        <input className="input" aria-label={t('New suffix')} placeholder="+" value={draft.suffix} onChange={(e) => setDraft({ ...draft, suffix: e.target.value })} />
         <Button type="button" variant="secondary" disabled={!draft.title || !/^-?\d+(\.\d+)?$/.test(draft.value)}
           onClick={() => run(async () => { await api.post('/campaign-statistics/', { campaign: campaignId, ...draft }); setDraft({ title: '', value: '', prefix: '', suffix: '' }) })}>
-          <Plus size={15} aria-hidden /> Add
+          <Plus size={15} aria-hidden /> {t('Add')}
         </Button>
       </div>
     </section>

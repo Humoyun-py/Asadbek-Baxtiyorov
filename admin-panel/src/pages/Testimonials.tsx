@@ -1,5 +1,6 @@
 import CrudPage, { type CrudConfig } from '../components/CrudPage'
 import { Badge } from '../components/ui'
+import { t } from '../i18n'
 
 const cfg: CrudConfig = {
   title: 'Testimonials', singular: 'testimonial', resource: 'testimonials', reorderable: true, togglePublish: 'is_published',
@@ -8,7 +9,7 @@ const cfg: CrudConfig = {
     { key: 'client_name', label: 'Client', render: (r) => <span className="font-semibold">{String(r.client_name)}</span> },
     { key: 'company_name', label: 'Company' },
     { key: 'rating', label: 'Rating', render: (r) => `${r.rating} / 5` },
-    { key: 'is_published', label: 'Status', render: (r) => <Badge tone={r.is_published ? 'green' : 'amber'}>{r.is_published ? 'Published' : 'Hidden'}</Badge> },
+    { key: 'is_published', label: 'Status', render: (r) => <Badge tone={r.is_published ? 'green' : 'amber'}>{r.is_published ? t('Published') : t('Hidden')}</Badge> },
   ],
   fields: [
     { name: 'client_name', label: 'Client name', type: 'text', required: true },

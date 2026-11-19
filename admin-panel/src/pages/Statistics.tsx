@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import CrudPage, { yesNo, type CrudConfig } from '../components/CrudPage'
 import { Badge, PageHeader } from '../components/ui'
+import { t } from '../i18n'
 
 const num = (r: Record<string, unknown>) => `${r.prefix ?? ''}${Number(r.value).toLocaleString('en-US', { maximumFractionDigits: 2 })}${r.suffix ?? ''}`
 
@@ -10,7 +11,7 @@ const globalCfg: CrudConfig = {
   columns: [
     { key: 'title', label: 'Title', render: (r) => <span className="font-semibold">{String(r.title)}</span> },
     { key: 'value', label: 'Value', render: (r) => <span className="tabular-nums">{num(r)}</span> },
-    { key: 'category', label: 'Group', render: (r) => <Badge tone={r.category === 'GENERAL' ? 'blue' : 'amber'}>{r.category === 'GENERAL' ? 'General' : 'University'}</Badge> },
+    { key: 'category', label: 'Group', render: (r) => <Badge tone={r.category === 'GENERAL' ? 'blue' : 'amber'}>{r.category === 'GENERAL' ? t('General') : t('University')}</Badge> },
     { key: 'description', label: 'Description', className: 'max-w-xs text-slate-600' },
     { key: 'is_active', label: 'Active', render: (r) => yesNo(r.is_active) },
   ],
@@ -51,10 +52,10 @@ export default function StatisticsPage() {
     <div>
       <PageHeader title="Statistics" />
       <div role="tablist" className="mb-5 inline-flex rounded-xl bg-white p-1 ring-1 ring-slate-200">
-        {(['global', 'campaign'] as const).map((t) => (
-          <button key={t} role="tab" aria-selected={tab === t} onClick={() => setTab(t)}
-            className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${tab === t ? 'bg-brand text-white' : 'text-slate-600'}`}>
-            {t === 'global' ? 'Global' : 'Per campaign'}
+        {(['global', 'campaign'] as const).map((k) => (
+          <button key={k} role="tab" aria-selected={tab === k} onClick={() => setTab(k)}
+            className={`rounded-lg px-4 py-1.5 text-sm font-semibold ${tab === k ? 'bg-brand text-white' : 'text-slate-600'}`}>
+            {k === 'global' ? t('Global') : t('Per campaign')}
           </button>
         ))}
       </div>

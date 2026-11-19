@@ -1,8 +1,9 @@
 import { AlertCircle, Loader2, X } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { useEffect, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { t } from '../i18n'
 
-export function Spinner({ label = 'Loading…' }: { label?: string }) {
+export function Spinner({ label = t('Loading…') }: { label?: string }) {
   return <div role="status" className="flex items-center justify-center gap-2 py-16 text-slate-500"><Loader2 className="animate-spin" size={18} aria-hidden /> {label}</div>
 }
 
@@ -11,7 +12,7 @@ export function ErrorBox({ message, onRetry }: { message: string; onRetry?: () =
     <div role="alert" className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-800">
       <AlertCircle size={18} className="mt-0.5 shrink-0" aria-hidden />
       <div className="flex-1">{message}</div>
-      {onRetry && <button onClick={onRetry} className="font-semibold underline">Retry</button>}
+      {onRetry && <button onClick={onRetry} className="font-semibold underline">{t('Retry')}</button>}
     </div>
   )
 }
@@ -59,7 +60,7 @@ export function Modal({ open, title, onClose, children, wide }: { open: boolean;
             className={`w-full ${wide ? 'max-w-3xl' : 'max-w-lg'} rounded-2xl bg-white shadow-2xl`}>
             <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
               <h2 className="text-lg font-bold">{title}</h2>
-              <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"><X size={18} /></button>
+              <button onClick={onClose} aria-label={t('Close')} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"><X size={18} /></button>
             </div>
             <div className="p-5">{children}</div>
           </motion.div>
@@ -69,13 +70,13 @@ export function Modal({ open, title, onClose, children, wide }: { open: boolean;
   )
 }
 
-export function ConfirmDialog({ open, title, text, confirmLabel = 'Delete', busy, onConfirm, onCancel }:
+export function ConfirmDialog({ open, title, text, confirmLabel = t('Delete'), busy, onConfirm, onCancel }:
   { open: boolean; title: string; text: string; confirmLabel?: string; busy?: boolean; onConfirm: () => void; onCancel: () => void }) {
   return (
     <Modal open={open} title={title} onClose={onCancel}>
-      <p className="text-sm text-slate-600">{text}</p>
+      <p className="text-sm text-slate-600">{t(text)}</p>
       <div className="mt-6 flex justify-end gap-2">
-        <Button variant="secondary" onClick={onCancel}>Cancel</Button>
+        <Button variant="secondary" onClick={onCancel}>{t('Cancel')}</Button>
         <Button variant="danger" loading={busy} onClick={onConfirm}>{confirmLabel}</Button>
       </div>
     </Modal>
@@ -85,7 +86,7 @@ export function ConfirmDialog({ open, title, text, confirmLabel = 'Delete', busy
 export function PageHeader({ title, subtitle, actions }: { title: string; subtitle?: string; actions?: ReactNode }) {
   return (
     <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
-      <div><h1 className="text-2xl font-bold tracking-tight">{title}</h1>{subtitle && <p className="mt-1 text-sm text-slate-500">{subtitle}</p>}</div>
+      <div><h1 className="text-2xl font-bold tracking-tight">{t(title)}</h1>{subtitle && <p className="mt-1 text-sm text-slate-500">{t(subtitle)}</p>}</div>
       <div className="flex flex-wrap gap-2">{actions}</div>
     </div>
   )
@@ -96,11 +97,11 @@ export function Pager({ page, count, pageSize, onPage }: { page: number; count: 
   if (pages <= 1) return null
   return (
     <div className="mt-4 flex items-center justify-between text-sm text-slate-600">
-      <span>{count} total</span>
+      <span>{t('{n} total', { n: count })}</span>
       <div className="flex items-center gap-2">
-        <Button variant="secondary" disabled={page <= 1} onClick={() => onPage(page - 1)}>Previous</Button>
-        <span>Page {page} / {pages}</span>
-        <Button variant="secondary" disabled={page >= pages} onClick={() => onPage(page + 1)}>Next</Button>
+        <Button variant="secondary" disabled={page <= 1} onClick={() => onPage(page - 1)}>{t('Previous')}</Button>
+        <span>{t('Page {p} / {n}', { p: page, n: pages })}</span>
+        <Button variant="secondary" disabled={page >= pages} onClick={() => onPage(page + 1)}>{t('Next')}</Button>
       </div>
     </div>
   )

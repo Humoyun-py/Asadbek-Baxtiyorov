@@ -1,6 +1,7 @@
 import CrudPage, { yesNo, type CrudConfig } from '../components/CrudPage'
 import { ProjectGallery } from '../components/ProjectExtras'
 import { Badge } from '../components/ui'
+import { t } from '../i18n'
 import type { Project } from '../types'
 
 const cfg: CrudConfig = {
@@ -15,7 +16,7 @@ const cfg: CrudConfig = {
     { key: 'category', label: 'Category', render: (r) => <Badge tone="blue">{(r as unknown as Project).category_detail?.name}</Badge> },
     { key: 'followers_count', label: 'Followers', render: (r) => (r.followers_count as number | null)?.toLocaleString() ?? '—' },
     { key: 'is_featured', label: 'Featured', render: (r) => yesNo(r.is_featured) },
-    { key: 'is_published', label: 'Status', render: (r) => <Badge tone={r.is_published ? 'green' : 'amber'}>{r.is_published ? 'Published' : 'Draft'}</Badge> },
+    { key: 'is_published', label: 'Status', render: (r) => <Badge tone={r.is_published ? 'green' : 'amber'}>{r.is_published ? t('Published') : t('Draft')}</Badge> },
   ],
   fields: [
     { name: 'title', label: 'Title', type: 'text', required: true },

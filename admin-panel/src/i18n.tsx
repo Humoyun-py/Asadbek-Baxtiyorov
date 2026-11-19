@@ -1,0 +1,362 @@
+import { createContext, Fragment, useCallback, useContext, useMemo, useState, type ReactNode } from 'react'
+
+export type Lang = 'uz' | 'en'
+const STORAGE_KEY = 'admin-lang'
+
+function readStored(): Lang {
+  try {
+    const v = localStorage.getItem(STORAGE_KEY)
+    if (v === 'uz' || v === 'en') return v
+  } catch { /* storage unavailable */ }
+  return 'uz'
+}
+
+// Current language lives in a module variable so plain functions (zod schemas, API error parsing,
+// date formatting) can translate too. The provider remounts the tree when it changes.
+let current: Lang = readStored()
+export const getLang = () => current
+export const getLocale = () => (current === 'uz' ? 'uz-UZ' : 'en-US')
+
+/** English text is the key. Missing keys fall back to the English text itself. */
+const UZ: Record<string, string> = {
+  // ---- common
+  'Loading…': 'Yuklanmoqda…',
+  'Retry': 'Qayta urinish',
+  'Cancel': 'Bekor qilish',
+  'Close': 'Yopish',
+  'Save': 'Saqlash',
+  'Saved': 'Saqlandi',
+  'Delete': 'O\'chirish',
+  'This cannot be undone.': 'Buni qaytarib bo\'lmaydi.',
+  'Actions': 'Amallar',
+  'Reorder': 'Tartiblash',
+  'Drag to reorder': 'Tartiblash uchun sudrang',
+  'Drag the grip handle to change the display order.': 'Ko\'rsatish tartibini o\'zgartirish uchun tutqichni sudrang.',
+  'Order saved': 'Tartib saqlandi',
+  'Previous': 'Oldingi',
+  'Next': 'Keyingi',
+  '{n} total': 'Jami: {n}',
+  'Page {p} / {n}': 'Sahifa {p} / {n}',
+  'Something went wrong.': 'Xatolik yuz berdi.',
+  'Yes': 'Ha',
+  'No': 'Yo\'q',
+  'Search': 'Qidirish',
+  'Search {x}…': '{x} bo\'yicha qidirish…',
+  '{x}: all': '{x}: barchasi',
+  'Nothing matches your search.': 'Qidiruvga mos hech narsa topilmadi.',
+  'No {x} yet.': 'Hozircha {x} yo\'q.',
+  'New {x}': 'Yangi {x}',
+  'Edit {x}': '{x}ni tahrirlash',
+  'Delete {x}': '{x}ni o\'chirish',
+  'Delete {x}?': '{x} o\'chirilsinmi?',
+  '{x} created': '{x} yaratildi',
+  '{x} saved': '{x} saqlandi',
+  '{x} deleted': '{x} o\'chirildi',
+  'Publish': 'E\'lon qilish',
+  'Unpublish': 'Yashirish',
+  'Published': 'E\'lon qilingan',
+  'Draft': 'Qoralama',
+  'Hidden': 'Yashirin',
+  'Active': 'Faol',
+  'Status': 'Holat',
+  '{x} is required': '{x} majburiy',
+  'Required': 'Majburiy',
+  'Select…': 'Tanlang…',
+  'Invalid value': 'Noto\'g\'ri qiymat',
+  'Enter a valid email': 'To\'g\'ri email kiriting',
+  'Enter a full URL starting with http(s)://': 'http(s):// bilan boshlanadigan to\'liq URL kiriting',
+  'Enter a whole number': 'Butun son kiriting',
+  'Enter a number': 'Son kiriting',
+  'Use a hex colour like #2f5bff': 'Hex rang kiriting, masalan #2f5bff',
+  'Must be a valid JSON list': 'To\'g\'ri JSON ro\'yxati bo\'lishi kerak',
+  // ---- images / gallery
+  'Replace image': 'Rasmni almashtirish',
+  'Choose image': 'Rasm tanlash',
+  'Remove': 'Olib tashlash',
+  'JPG, PNG or WEBP, up to 5 MB.': 'JPG, PNG yoki WEBP, 5 MB gacha.',
+  '{x} preview': '{x} ko\'rinishi',
+  'Add item': 'Element qo\'shish',
+  'Gallery': 'Galereya',
+  'Gallery ({n})': 'Galereya ({n})',
+  'Upload images': 'Rasmlarni yuklash',
+  'Upload gallery images': 'Galereya rasmlarini yuklash',
+  'No gallery images yet.': 'Galereyada hali rasm yo\'q.',
+  'Gallery image': 'Galereya rasmi',
+  'Set as cover': 'Muqova qilish',
+  'Delete image': 'Rasmni o\'chirish',
+  'COVER': 'MUQOVA',
+  // ---- campaign stats inline
+  'Campaign statistics': 'Kampaniya statistikasi',
+  'No statistics for this campaign yet.': 'Bu kampaniya uchun statistika hali yo\'q.',
+  'Label': 'Nomi',
+  'Value': 'Qiymat',
+  'Prefix': 'Old qo\'shimcha',
+  'Suffix': 'Orqa qo\'shimcha',
+  'New label': 'Yangi nom',
+  'New value': 'Yangi qiymat',
+  'New prefix': 'Yangi old qo\'shimcha',
+  'New suffix': 'Yangi orqa qo\'shimcha',
+  'Add': 'Qo\'shish',
+  'Delete statistic': 'Statistikani o\'chirish',
+  // ---- singleton
+  'Your role can view but not change these values.': 'Sizning rolingiz bu qiymatlarni faqat ko\'rishi mumkin, o\'zgartira olmaydi.',
+  // ---- layout
+  'Dashboard': 'Boshqaruv paneli',
+  'Projects': 'Loyihalar',
+  'Categories': 'Kategoriyalar',
+  'Services': 'Xizmatlar',
+  'Campaigns': 'Kampaniyalar',
+  'Statistics': 'Statistika',
+  'Messages': 'Xabarlar',
+  'Testimonials': 'Mijoz fikrlari',
+  'Portfolio profile': 'Portfolio profili',
+  'Website settings': 'Sayt sozlamalari',
+  'Admin users': 'Admin foydalanuvchilar',
+  'Activity log': 'Faoliyat jurnali',
+  'Portfolio Admin': 'Portfolio Admin',
+  'Close menu': 'Menyuni yopish',
+  'Open menu': 'Menyuni ochish',
+  'Main': 'Asosiy',
+  '{n} new messages': '{n} ta yangi xabar',
+  'Password': 'Parol',
+  'Sign out': 'Chiqish',
+  'Language': 'Til',
+  // ---- auth
+  'Portfolio administration': 'Portfolio boshqaruvi',
+  'Sign in': 'Kirish',
+  'Username': 'Foydalanuvchi nomi',
+  'Username is required': 'Foydalanuvchi nomi majburiy',
+  'Password is required': 'Parol majburiy',
+  'Incorrect username or password.': 'Foydalanuvchi nomi yoki parol noto\'g\'ri.',
+  'Forgot password?': 'Parolni unutdingizmi?',
+  'Reset password': 'Parolni tiklash',
+  'If that email belongs to an account, a reset link has been sent.': 'Agar bu email hisobga tegishli bo\'lsa, tiklash havolasi yuborildi.',
+  'Email': 'Email',
+  'Send reset link': 'Tiklash havolasini yuborish',
+  'Back to sign in': 'Kirishga qaytish',
+  'Choose a new password': 'Yangi parol tanlang',
+  'Password updated.': 'Parol yangilandi.',
+  'New password': 'Yangi parol',
+  'Confirm password': 'Parolni tasdiqlang',
+  'Update password': 'Parolni yangilash',
+  'Change password': 'Parolni o\'zgartirish',
+  'Your password has been changed.': 'Parolingiz o\'zgartirildi.',
+  'Current password': 'Joriy parol',
+  'Confirm new password': 'Yangi parolni tasdiqlang',
+  'At least 10 characters': 'Kamida 10 ta belgi',
+  'Passwords do not match': 'Parollar mos kelmadi',
+  // ---- errors
+  'Too many requests. Please wait a moment and try again.': 'So\'rovlar juda ko\'p. Biroz kutib, qayta urinib ko\'ring.',
+  'You do not have permission to do this.': 'Buning uchun ruxsatingiz yo\'q.',
+  'Server error. Please try again later.': 'Server xatosi. Keyinroq qayta urinib ko\'ring.',
+  'Network Error': 'Tarmoq xatosi',
+  // ---- dashboard
+  'Live data from the portfolio API.': 'Portfolio API\'dan jonli ma\'lumotlar.',
+  'New messages': 'Yangi xabarlar',
+  '{n} published': '{n} ta e\'lon qilingan',
+  'Website visits': 'Sayt tashriflari',
+  '{n} in the last 7 days': 'So\'nggi 7 kunda {n} ta',
+  'Project views': 'Loyiha ko\'rishlari',
+  'Form submissions': 'Forma yuborishlar',
+  'Advertising budget': 'Reklama byudjeti',
+  'General (not university campaigns)': 'Umumiy (universitet kampaniyalarisiz)',
+  'Daily visits (30 days)': 'Kunlik tashriflar (30 kun)',
+  'Monthly visits': 'Oylik tashriflar',
+  'Popular projects': 'Mashhur loyihalar',
+  'Messages by status': 'Xabarlar holat bo\'yicha',
+  'Recent activity': 'So\'nggi faoliyat',
+  'No data yet.': 'Hozircha ma\'lumot yo\'q.',
+  'No activity yet.': 'Hozircha faoliyat yo\'q.',
+  'Visits': 'Tashriflar',
+  'Unique': 'Noyob',
+  'Views': 'Ko\'rishlar',
+  // ---- activity
+  'Who changed what. Passwords and tokens are never recorded.': 'Kim nimani o\'zgartirgan. Parollar va tokenlar hech qachon yozilmaydi.',
+  'When': 'Qachon',
+  'User': 'Foydalanuvchi',
+  'Action': 'Amal',
+  'Object': 'Obyekt',
+  'create': 'yaratish',
+  'update': 'yangilash',
+  'delete': 'o\'chirish',
+  // ---- messages
+  'Contact messages': 'Aloqa xabarlari',
+  'Messages sent through the website contact form.': 'Saytdagi aloqa formasi orqali yuborilgan xabarlar.',
+  'Search messages': 'Xabarlarni qidirish',
+  'Search name, email, subject…': 'Ism, email, mavzu bo\'yicha qidirish…',
+  'Status: all': 'Holat: barchasi',
+  'New': 'Yangi',
+  'In progress': 'Jarayonda',
+  'Completed': 'Bajarilgan',
+  'Spam': 'Spam',
+  'No messages.': 'Xabarlar yo\'q.',
+  'From': 'Kimdan',
+  'Received': 'Qabul qilingan',
+  'Phone': 'Telefon',
+  'Telegram': 'Telegram',
+  'Mark in progress': 'Jarayonda deb belgilash',
+  'Mark completed': 'Bajarilgan deb belgilash',
+  'Mark spam': 'Spam deb belgilash',
+  'Delete message?': 'Xabar o\'chirilsinmi?',
+  'Status updated': 'Holat yangilandi',
+  'Message deleted': 'Xabar o\'chirildi',
+  // ---- page titles / subtitles / entities
+  'University campaigns': 'Universitet kampaniyalari',
+  'Admission campaigns. Fill only the figures you actually know — empty values are not shown.': 'Qabul kampaniyalari. Faqat o\'zingiz bilgan raqamlarni kiriting — bo\'sh qiymatlar ko\'rsatilmaydi.',
+  'campaign': 'kampaniya',
+  'Short name': 'Qisqa nom',
+  'University': 'Universitet',
+  'Followers': 'Obunachilar',
+  'Leads': 'Leadlar',
+  'Short name (e.g. TPU)': 'Qisqa nom (masalan, TPU)',
+  'University name': 'Universitet nomi',
+  'My role': 'Mening rolim',
+  'Description': 'Tavsif',
+  'Key points': 'Asosiy fikrlar',
+  'Advertising budget ($)': 'Reklama byudjeti ($)',
+  'Impressions': 'Ko\'rsatishlar',
+  'Clicks': 'Bosishlar',
+  'CPC ($)': 'CPC ($)',
+  'CPM ($)': 'CPM ($)',
+  'Cost per lead ($)': 'Lead narxi ($)',
+  'Start date': 'Boshlanish sanasi',
+  'End date': 'Tugash sanasi',
+  'Main screenshot': 'Asosiy skrinshot',
+  'Active (visible on website)': 'Faol (saytda ko\'rinadi)',
+  'Project categories': 'Loyiha kategoriyalari',
+  'category': 'kategoriya',
+  'Categories used to filter projects on the website.': 'Saytda loyihalarni filtrlash uchun kategoriyalar.',
+  'Name': 'Nomi',
+  'Slug': 'Slug',
+  'Leave empty to generate.': 'Avtomatik yaratish uchun bo\'sh qoldiring.',
+  'Contact': 'Aloqa',
+  'Full name': 'To\'liq ism',
+  'Professional titles': 'Kasbiy unvonlar',
+  'Short description': 'Qisqa tavsif',
+  'Biography': 'Tarjimai hol',
+  'Profile image': 'Profil rasmi',
+  'Experience (years)': 'Tajriba (yil)',
+  'Projects count': 'Loyihalar soni',
+  'Shown as text, e.g. 10+': 'Matn sifatida ko\'rsatiladi, masalan 10+',
+  'General advertising budget': 'Umumiy reklama byudjeti',
+  'e.g. $180 000+ (separate from the university campaigns budget)': 'masalan, $180 000+ (universitet kampaniyalari byudjetidan alohida)',
+  'Agency name': 'Agentlik nomi',
+  'Telegram URL': 'Telegram URL',
+  'Instagram URL': 'Instagram URL',
+  'GitHub URL': 'GitHub URL',
+  'Profile active': 'Profil faol',
+  'Main personal information shown on the website.': 'Saytda ko\'rsatiladigan asosiy shaxsiy ma\'lumotlar.',
+  'Portfolio projects shown on the public website.': 'Ochiq saytda ko\'rsatiladigan portfolio loyihalari.',
+  'project': 'loyiha',
+  'Category': 'Kategoriya',
+  'Title': 'Sarlavha',
+  'Featured': 'Tanlangan',
+  'Leave empty to generate from the title.': 'Sarlavhadan avtomatik yaratish uchun bo\'sh qoldiring.',
+  'Card badge': 'Karta belgisi',
+  'Full description': 'To\'liq tavsif',
+  'Client name': 'Mijoz nomi',
+  'Direction': 'Yo\'nalish',
+  'Card image': 'Karta rasmi',
+  'Cover image': 'Muqova rasmi',
+  'Project URL': 'Loyiha URL',
+  'Handle (e.g. bot)': 'Handle (masalan, bot)',
+  'Highlights': 'Asosiy jihatlar',
+  'Extra lists (JSON)': 'Qo\'shimcha ro\'yxatlar (JSON)',
+  'e.g. [{"title": "Style", "items": ["Luxury"]}]': 'masalan, [{"title": "Style", "items": ["Luxury"]}]',
+  'Featured project': 'Tanlangan loyiha',
+  'Services offered. Drag to change the order.': 'Taklif qilinadigan xizmatlar. Tartibni o\'zgartirish uchun sudrang.',
+  'service': 'xizmat',
+  'Icon': 'Ikonka',
+  'Icon name (Lucide)': 'Ikonka nomi (Lucide)',
+  'e.g. Target, Megaphone, Users, Bot': 'masalan, Target, Megaphone, Users, Bot',
+  'Global statistics': 'Umumiy statistika',
+  'General portfolio figures vs. university-campaign totals — kept separate on purpose.': 'Umumiy portfolio ko\'rsatkichlari va universitet kampaniyalari jami — ataylab alohida saqlanadi.',
+  'statistic': 'statistika',
+  'Group': 'Guruh',
+  'General': 'Umumiy',
+  'Key': 'Kalit',
+  'Stable identifier used by the website (lowercase, dashes).': 'Sayt ishlatadigan doimiy identifikator (kichik harf, chiziqcha).',
+  'Prefix (e.g. $)': 'Old qo\'shimcha (masalan, $)',
+  'Suffix (e.g. +)': 'Orqa qo\'shimcha (masalan, +)',
+  'General portfolio': 'Umumiy portfolio',
+  'Figures attached to one specific campaign.': 'Bitta aniq kampaniyaga biriktirilgan ko\'rsatkichlar.',
+  'campaign statistic': 'kampaniya statistikasi',
+  'Campaign': 'Kampaniya',
+  'Global': 'Umumiy',
+  'Per campaign': 'Kampaniya bo\'yicha',
+  'Only real client testimonials. The website section stays hidden until one is published.': 'Faqat haqiqiy mijoz fikrlari. Bittasi e\'lon qilinmaguncha sayt bo\'limi yashirin turadi.',
+  'testimonial': 'mijoz fikri',
+  'Client': 'Mijoz',
+  'Company': 'Kompaniya',
+  'Rating': 'Reyting',
+  'Position': 'Lavozim',
+  'Rating (1-5)': 'Reyting (1-5)',
+  'Testimonial': 'Mijoz fikri',
+  'Client photo': 'Mijoz rasmi',
+  'Only super admins can manage users. There is no public registration.': 'Foydalanuvchilarni faqat super adminlar boshqaradi. Ochiq ro\'yxatdan o\'tish yo\'q.',
+  'user': 'foydalanuvchi',
+  'Role': 'Rol',
+  'Super admin': 'Super admin',
+  'Admin': 'Admin',
+  'Editor': 'Muharrir',
+  'Last login': 'Oxirgi kirish',
+  'First name': 'Ism',
+  'Last name': 'Familiya',
+  'On edit, leave empty to keep the current password; fill it in to reset it. Min 10 characters.': 'Tahrirlashda joriy parolni saqlash uchun bo\'sh qoldiring; tiklash uchun to\'ldiring. Kamida 10 ta belgi.',
+  'Branding, SEO and site-wide switches (super admin only).': 'Brending, SEO va umumsayt sozlamalari (faqat super admin).',
+  'Website title': 'Sayt nomi',
+  'Website description': 'Sayt tavsifi',
+  'Logo': 'Logotip',
+  'Favicon': 'Favikon',
+  'Primary colour': 'Asosiy rang',
+  'Secondary colour': 'Qo\'shimcha rang',
+  'Footer text': 'Pastki qism matni',
+  'Contact email': 'Aloqa emaili',
+  'Contact phone': 'Aloqa telefoni',
+  'Contact address': 'Aloqa manzili',
+  'SEO title': 'SEO sarlavhasi',
+  'Up to 70 characters.': '70 ta belgigacha.',
+  'SEO description': 'SEO tavsifi',
+  'Up to 170 characters.': '170 ta belgigacha.',
+  'Open Graph image': 'Open Graph rasmi',
+  'Maintenance mode': 'Texnik ishlar rejimi',
+}
+
+export function t(key: string, vars?: Record<string, string | number>): string {
+  let s = (current === 'uz' && UZ[key]) || key
+  if (vars) for (const [k, v] of Object.entries(vars)) s = s.split(`{${k}}`).join(String(v))
+  return s
+}
+
+interface LangState { lang: Lang; setLang: (l: Lang) => void }
+const Ctx = createContext<LangState>({ lang: current, setLang: () => {} })
+
+export function LangProvider({ children }: { children: ReactNode }) {
+  const [lang, setLangState] = useState<Lang>(current)
+  const setLang = useCallback((l: Lang) => {
+    current = l
+    try { localStorage.setItem(STORAGE_KEY, l) } catch { /* ignore */ }
+    document.documentElement.lang = l
+    setLangState(l)
+  }, [])
+  const value = useMemo(() => ({ lang, setLang }), [lang, setLang])
+  document.documentElement.lang = lang
+  // Keyed Fragment remounts the subtree so module-level configs re-translate on switch.
+  return <Ctx.Provider value={value}><Fragment key={lang}>{children}</Fragment></Ctx.Provider>
+}
+
+export const useLang = () => useContext(Ctx)
+
+export function LanguageSwitcher({ className = '', light }: { className?: string; light?: boolean }) {
+  const { lang, setLang } = useLang()
+  return (
+    <div role="group" aria-label={t('Language')} className={`inline-flex overflow-hidden rounded-lg ring-1 ${light ? 'ring-slate-300' : 'ring-white/20'} ${className}`}>
+      {(['uz', 'en'] as const).map((l) => (
+        <button key={l} type="button" aria-pressed={lang === l} onClick={() => setLang(l)}
+          className={`px-2.5 py-1.5 text-xs font-bold uppercase ${lang === l ? 'bg-brand text-white' : light ? 'bg-white text-slate-600 hover:bg-slate-100' : 'bg-white/10 text-slate-300 hover:bg-white/20'}`}>
+          {l === 'uz' ? 'O\'zb' : 'Eng'}
+        </button>
+      ))}
+    </div>
+  )
+}
