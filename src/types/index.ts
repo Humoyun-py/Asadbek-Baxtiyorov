@@ -1,7 +1,7 @@
 import type { LucideIcon } from 'lucide-react'
 
-export type Category = 'Ta\'lim' | 'Shaxsiy brend' | 'Savdo' | 'AI' | 'Universitetlar'
-export type Filter = 'Barchasi' | 'Ta\'lim' | 'Shaxsiy brend' | 'Savdo' | 'AI'
+export type Category = string
+export type Filter = string
 
 export interface Project {
   id: string

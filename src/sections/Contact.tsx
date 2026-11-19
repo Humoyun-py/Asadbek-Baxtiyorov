@@ -2,6 +2,8 @@ import { Building2, Send, User } from 'lucide-react'
 import Arcs from '../components/Arcs'
 import Button from '../components/Button'
 import Reveal from '../components/Reveal'
+import ContactForm from '../components/ContactForm'
+import { API_URL } from '../api/portfolio'
 import { TELEGRAM_URL, TELEGRAM_HANDLE } from '../data/services'
 
 export default function Contact() {
@@ -34,6 +36,7 @@ export default function Contact() {
               </div>
             </dl>
             <Button href={TELEGRAM_URL} external className="mt-8 w-full"><Send size={18} aria-hidden /> Telegram orqali bog'lanish</Button>
+            {API_URL && <ContactForm />}
           </div>
         </Reveal>
       </div>

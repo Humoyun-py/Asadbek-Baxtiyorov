@@ -3,10 +3,11 @@ import { AnimatePresence, LayoutGroup, motion } from 'framer-motion'
 import SectionHeading from '../components/SectionHeading'
 import ProjectCard from '../components/ProjectCard'
 import ProjectModal from '../components/ProjectModal'
-import { allProjects, filters } from '../data/projects'
+import { track, usePortfolio } from '../api/portfolio'
 import type { Filter, Project } from '../types'
 
 export default function Projects() {
+  const { projects: allProjects, filters } = usePortfolio()
   const [filter, setFilter] = useState<Filter>('Barchasi')
   const [selected, setSelected] = useState<Project | null>(null)
   const close = useCallback(() => setSelected(null), [])
@@ -31,7 +32,7 @@ export default function Projects() {
         <LayoutGroup>
           <motion.div layout className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <AnimatePresence mode="popLayout">
-              {list.map((p) => <ProjectCard key={p.id} project={p} onOpen={setSelected} />)}
+              {list.map((p) => <ProjectCard key={p.id} project={p} onOpen={(p) => { setSelected(p); track('PROJECT_VIEW', { project: p.id }) }} />)}
             </AnimatePresence>
           </motion.div>
         </LayoutGroup>

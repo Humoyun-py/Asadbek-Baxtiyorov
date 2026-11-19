@@ -1,9 +1,10 @@
 import { GraduationCap, MapPin } from 'lucide-react'
 import SectionHeading from '../components/SectionHeading'
 import Reveal from '../components/Reveal'
-import { universities } from '../data/projects'
+import { usePortfolio } from '../api/portfolio'
 
 export default function UniversityCampaigns() {
+  const { universities } = usePortfolio()
   return (
     <section id="universities" aria-labelledby="uni-title" className="py-20 sm:py-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">

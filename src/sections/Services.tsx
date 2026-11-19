@@ -1,7 +1,8 @@
-import { services } from '../data/services'
+import { usePortfolio } from '../api/portfolio'
 import Reveal from '../components/Reveal'
 
 export default function Services() {
+  const { services } = usePortfolio()
   return (
     <section id="services" aria-label="Xizmatlar" className="pb-20 sm:pb-28">
       <div className="mx-auto max-w-7xl px-5 sm:px-8">

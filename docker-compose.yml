@@ -1,0 +1,14 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: asadbek-portfolio-db
+    environment:
+      POSTGRES_DB: asadbek_portfolio
+      POSTGRES_USER: asadbek
+      POSTGRES_PASSWORD: asadbek_dev_password
+    ports:
+      - "127.0.0.1:55433:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+volumes:
+  pgdata:

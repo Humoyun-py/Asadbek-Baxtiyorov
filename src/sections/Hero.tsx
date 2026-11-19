@@ -2,11 +2,11 @@ import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Send, TrendingUp, Users, Wallet } from 'lucide-react'
 import Arcs from '../components/Arcs'
 import Button from '../components/Button'
-import { heroStats } from '../data/statistics'
+import { usePortfolio } from '../api/portfolio'
 
 // Haqiqiy portret qo'shish: src/assets/portrait.png (yoki .jpg/.webp) faylini joylashtiring.
 const portraits = import.meta.glob('../assets/portrait.{png,jpg,jpeg,webp}', { eager: true, import: 'default' }) as Record<string, string>
-const portrait = Object.values(portraits)[0]
+const staticPortrait = Object.values(portraits)[0]
 
 const ease = [0.22, 1, 0.36, 1] as const
 
@@ -22,6 +22,8 @@ function Float({ children, className, delay = 0 }: { children: React.ReactNode; 
 }
 
 export default function Hero() {
+  const { heroStats, portrait: apiPortrait } = usePortfolio()
+  const portrait = apiPortrait || staticPortrait
   const reduce = useReducedMotion()
   const item = (i: number) => ({
     initial: reduce ? false as const : { opacity: 0, y: 28 },

@@ -1,9 +1,14 @@
 [build]
-  command = "npm run build"
+  command = "npm run build && npm --prefix admin-panel ci && npm --prefix admin-panel run build && cp -r admin-panel/dist dist/admin"
   publish = "dist"
 
 [build.environment]
   NODE_VERSION = "20"
+
+[[redirects]]
+  from = "/admin/*"
+  to = "/admin/index.html"
+  status = 200
 
 [[redirects]]
   from = "/*"

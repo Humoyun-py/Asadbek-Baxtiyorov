@@ -4,10 +4,11 @@ import SectionHeading from '../components/SectionHeading'
 import StatCard from '../components/StatCard'
 import AnimatedCounter from '../components/AnimatedCounter'
 import Reveal from '../components/Reveal'
-import { kpis, mainStats } from '../data/statistics'
+import { usePortfolio } from '../api/portfolio'
 import metaShot from '../assets/meta-ads-manager.png'
 
 export default function Results() {
+  const { kpis, mainStats } = usePortfolio()
   return (
     <section id="results" aria-labelledby="results-title" className="relative overflow-hidden bg-bg2/40 py-20 sm:py-28">
       <Arcs className="-top-10 right-0 h-[60%] w-[70%] opacity-70" />

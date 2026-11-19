@@ -4,3 +4,9 @@ dist
 *.local
 asadbek-netlify-dist.zip
 *.tsbuildinfo
+backend/.venv
+backend/.env
+backend/media
+backend/staticfiles
+admin-panel/dist
+.env.local

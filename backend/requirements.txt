@@ -1,0 +1,14 @@
+Django>=5.2,<6.0
+djangorestframework>=3.15
+djangorestframework-simplejwt>=5.3
+django-filter>=24.3
+django-cors-headers>=4.4
+drf-spectacular>=0.27
+Pillow>=10.4
+gunicorn>=22.0
+whitenoise>=6.7
+psycopg[binary]>=3.2
+python-dotenv>=1.0
+dj-database-url>=2.2
+# Optional: external media storage (set CLOUDINARY_URL)
+# django-cloudinary-storage>=0.3
