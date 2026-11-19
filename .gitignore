@@ -10,3 +10,6 @@ backend/media
 backend/staticfiles
 admin-panel/dist
 .env.local
+
+# Local Netlify folder
+.netlify

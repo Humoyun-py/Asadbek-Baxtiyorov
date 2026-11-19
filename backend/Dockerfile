@@ -6,4 +6,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 RUN SECRET_KEY=build-only DEBUG=True python manage.py collectstatic --noinput
 EXPOSE 8000
-CMD ["sh", "-c", "python manage.py migrate --noinput && gunicorn config.wsgi:application -c gunicorn.conf.py"]
+CMD ["sh", "-c", "python manage.py migrate --noinput && python manage.py ensure_admin && python manage.py seed_portfolio && gunicorn config.wsgi:application -c gunicorn.conf.py"]
